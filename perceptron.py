@@ -43,7 +43,7 @@ class PerceptronNetwork:
         for layer in self.pLayers:
             output_values = layer.activation(output_values)
 
-        print(f"==========================================================\n"
-              f"Input was: {inputs} | Network output is: {output_values}\n"
-              f"==========================================================\n")
+        print(f"=================================================\n"
+              f"| Input was: {inputs} | Network output is: {output_values} |\n"
+              f"=================================================\n")
         return output_values

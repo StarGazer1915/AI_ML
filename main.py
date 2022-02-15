@@ -22,6 +22,7 @@ pLayer2_2 = PerceptronLayer([p9, p8])
 pNetwork2 = PerceptronNetwork([pLayer2_1, pLayer2_2])
 
 # =============== PERCEPTRON TESTS =============== #
+print("\n##====================## PERCEPTOR TESTS ##====================##")
 print(f"\n{p1}")
 p1.activation([1, 1])
 p1.activation([1, 0])
@@ -91,7 +92,7 @@ p9.activation([0, 1, 1])
 p9.activation([0, 0, 0])
 
 # =============== NETWORK TESTS [XOR] =============== #
-print("==================== NETWORK TESTS [XOR] ====================")
+print("\n##====================## NETWORK TESTS [XOR] ##====================##\n")
 pNetwork1.feed_forward([0, 0])
 pNetwork1.feed_forward([0, 1])
 pNetwork1.feed_forward([1, 0])
