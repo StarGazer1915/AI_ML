@@ -5,24 +5,36 @@ class Perceptron:
         self.weights = weights
         self.b = b
 
+    def execute_batch(self, inputs, expected):
+        total_outputs = []
+        if len(inputs) == len(expected):
+            for i in range(len(inputs)):
+                output = self.activation(inputs[i])
+                total_outputs.append(output)
+                y_eval = output == expected[i]
+                print(f"[{self.p_type}] | Input: {inputs[i]} | Output: {output} | Correct: {y_eval}")
+        else:
+            print("Length of inputs and expected are not equal.")
+
+        return total_outputs
+
     def activation(self, inputs):
         sum = self.b
         for i in range(len(inputs)):
             sum += inputs[i] * self.weights[i]
 
         if sum >= 0:
-            print(f"[{self.p_type}] | Inputs: {inputs} | Output = 1")
             return 1
         else:
-            print(f"[{self.p_type}] | Inputs: {inputs} | Output = 0")
             return 0
 
     def __str__(self):
-        return f"[{self.p_type}] Perceptron | weights: '{self.weights}' | bias: '{self.b}' "
+        return f"Perceptron | Type: '{self.p_type}' | Weights: '{self.weights}' | Bias: '{self.b}'"
 
 
 class PerceptronLayer:
-    def __init__(self, ptrons):
+    def __init__(self, p_type, ptrons):
+        self.p_type = p_type
         self.ptrons = ptrons
 
     def activation(self, inputs):
@@ -30,20 +42,33 @@ class PerceptronLayer:
         for perceptron in self.ptrons:
             output.append(perceptron.activation(inputs))
 
-        print(f"----- New input = {output} -----\n")
         return output
+
+    def __str__(self):
+        return f"Perceptron Layer | Amount of Perceptrons: '{len(self.ptrons)}' | Perceptron types: '{self.p_type}'"
 
 
 class PerceptronNetwork:
-    def __init__(self, pLayers):
+    def __init__(self, net_type, pLayers):
+        self.net_type = net_type
         self.pLayers = pLayers
 
-    def feed_forward(self, inputs):
-        output_values = inputs
-        for layer in self.pLayers:
-            output_values = layer.activation(output_values)
+    def feed_forward(self, inputs, expected):
+        output_value = []
+        if len(inputs) == len(expected):
+            for i in range(len(inputs)):
+                output_value = inputs[i]
+                for layer in self.pLayers:
+                    output_value = layer.activation(output_value)
+                y_eval = output_value == expected[i]
+                print(f"[{self.net_type}] | Input: {inputs[i]} | Output: {output_value} | Correct: {y_eval}")
+        else:
+            print("Length of inputs and expected are not equal.")
 
-        print(f"=================================================\n"
-              f"| Input was: {inputs} | Network output is: {output_values} |\n"
-              f"=================================================\n")
-        return output_values
+        return output_value
+
+    def get_layers(self):
+        return self.pLayers
+
+    def __str__(self):
+        return f"Perceptron Network | Type: '{self.net_type}' | Amount of Layers: '{len(self.pLayers)}'"
