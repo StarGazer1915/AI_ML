@@ -36,9 +36,10 @@ def test_perceptor(p, inputs, expected):
     @param p: perceptor object
     @param inputs: list
     @param expected: list
+    @return: list
     """
     print(f"\n{p}")
-    p.execute_batch(inputs, expected)
+    return p.execute_batch(inputs, expected)
 
 
 def test_network(net, inputs, expected):
@@ -47,12 +48,12 @@ def test_network(net, inputs, expected):
     @param net: network object
     @param inputs: list
     @param expected: list
-    @return: void
+    @return: list
     """
     print(f"\n{net}")
     for layer in net.get_layers():
         print(layer)
-    net.feed_forward(inputs, expected)
+    return net.feed_forward(inputs, expected)
 
 
 # =============== TEST CASES PERCEPTORS =============== #
