@@ -32,7 +32,9 @@ pNetwork2 = PerceptronNetwork('HALF ADDER', [pLayer2_1, pLayer2_2])
 # ===============  TEST FUNCTIONS =============== #
 def test_perceptor(p, inputs, expected):
     """
-    ...
+    This function tests the perceptron by comparing the output and expected values.
+    The print statements and returned output from the 'execute_batch' method will show
+    if the outputs are what is expected from the perceptor.
     @param p: perceptor object
     @param inputs: list
     @param expected: list
@@ -44,7 +46,8 @@ def test_perceptor(p, inputs, expected):
 
 def test_network(net, inputs, expected):
     """
-    ...
+    Mostly same as the test_perceptor() function but for a network.
+    The function also prints the layers of the network to visualize it's structure.
     @param net: network object
     @param inputs: list
     @param expected: list

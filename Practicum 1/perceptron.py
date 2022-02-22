@@ -12,7 +12,10 @@ class Perceptron:
 
     def execute_batch(self, inputs, expected):
         """
-        ...
+        The main function to run multiple activations.
+        The function runs an activation for each input given and generates an output. The output is then
+        compared and put into a print statement to give an accurate visual representation of the output
+        and if it's correct/expected. All the outputs are then returned as a list.
         @param inputs: list
         @param expected: list
         @return: list
@@ -22,8 +25,8 @@ class Perceptron:
             for i in range(len(inputs)):
                 output = self.activation(inputs[i])
                 total_outputs.append(output)
-                y_eval = output == expected[i]
-                print(f"[{self.p_type}] | Input: {inputs[i]} | Output: {output} | Correct: {y_eval}")
+                correct = output == expected[i]
+                print(f"[{self.p_type}] | Input: {inputs[i]} | Output: {output} | Correct: {correct}")
         else:
             print("Length of inputs and expected are not equal.")
 
@@ -31,7 +34,8 @@ class Perceptron:
 
     def activation(self, inputs):
         """
-        ...
+        This function handles the activation of the perceptron.
+        The function uses the step function to determine the output. (n >= 0)
         @param inputs: list
         @return: int
         """
@@ -63,7 +67,8 @@ class PerceptronLayer:
 
     def activation(self, inputs):
         """
-        ...
+        This function handles the activation of the perceptrons that are in the layer.
+        This function uses the step function from the activation() function in the perceptron class.
         @param inputs: list
         @return: list
         """
@@ -92,7 +97,10 @@ class PerceptronNetwork:
 
     def feed_forward(self, inputs, expected):
         """
-        ...
+        The main function to run multiple activations in multiple layers.
+        The function runs an activation for each input given and generates an output. The output is then
+        compared and put into a print statement to give an accurate visual representation of the output
+        and if it's correct/expected. All the outputs are then returned as a list.
         @param inputs: list
         @param expected: list
         @return: list
@@ -104,8 +112,8 @@ class PerceptronNetwork:
                 for layer in self.pLayers:
                     output_value = layer.activation(output_value)
                 total_outputs.append(output_value)
-                y_eval = output_value == expected[i]
-                print(f"[{self.net_type}] | Input: {inputs[i]} | Output: {output_value} | Correct: {y_eval}")
+                correct = output_value == expected[i]
+                print(f"[{self.net_type}] | Input: {inputs[i]} | Output: {output_value} | Correct: {correct}")
         else:
             print("Length of inputs and expected are not equal.")
 
