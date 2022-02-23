@@ -56,31 +56,3 @@ class Perceptron:
     def __str__(self):
         return f"Perceptron | Type: '{self.p_type}' | Weights: '{self.weights}' | Bias: '{self.b}' | " \
                f"Learning Rate: '{self.lr}'"
-
-
-class PerceptronLayer:
-    def __init__(self, ptrons):
-        self.ptrons = ptrons
-
-    def activation(self, inputs):
-        output = []
-        for perceptron in self.ptrons:
-            output.append(perceptron.activation(inputs))
-
-        print(f"----- New input = {output} -----\n")
-        return output
-
-
-class PerceptronNetwork:
-    def __init__(self, pLayers):
-        self.pLayers = pLayers
-
-    def feed_forward(self, inputs):
-        output_values = inputs
-        for layer in self.pLayers:
-            output_values = layer.activation(output_values)
-
-        print(f"=================================================\n"
-              f"| Input was: {inputs} | Network output is: {output_values} |\n"
-              f"=================================================\n")
-        return output_values
