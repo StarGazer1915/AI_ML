@@ -1,3 +1,4 @@
+import math
 
 class Neuron:
     def __init__(self, n_type, weights, b):
@@ -6,7 +7,7 @@ class Neuron:
         @param weights: list
         @param b: int / float
         """
-        self.p_type = n_type
+        self.n_type = n_type
         self.weights = weights
         self.b = b
 
@@ -25,8 +26,7 @@ class Neuron:
             for i in range(len(inputs)):
                 output = self.activation(inputs[i])
                 total_outputs.append(output)
-                correct = output == expected[i]
-                print(f"[{self.n_type}] | Input: {inputs[i]} | Output: {output} | Correct: {correct}")
+                print(f"[{self.n_type}] | Input: {inputs[i]} | Output: {output} | Expected: {expected[i]}")
         else:
             print("Length of inputs and expected are not equal.")
 
@@ -43,14 +43,17 @@ class Neuron:
         for i in range(len(inputs)):
             sum += inputs[i] * self.weights[i]
 
-        # if sum
+        return self.sigmoid(sum)
+
+    def sigmoid(self, z):
+        return 1 / (1 + math.e**(-z))
 
     def __str__(self):
         """
         Function to make the perceptron object printable for informational purposes.
         @return: string
         """
-        return f"Perceptron | Type: '{self.n_type}' | Weights: '{self.weights}' | Bias: '{self.b}'"
+        return f"Neuron | Type: '{self.n_type}' | Weights: '{self.weights}' | Bias: '{self.b}'"
 
 
 class NeuronLayer:
@@ -59,7 +62,7 @@ class NeuronLayer:
         @param p_type: string
         @param ptrons: list
         """
-        self.p_type = n_type
+        self.n_type = n_type
         self.ptrons = ptrons
 
     def activation(self, inputs):
