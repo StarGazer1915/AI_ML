@@ -3,7 +3,7 @@ import math
 class Neuron:
     def __init__(self, n_type, weights, b):
         """
-        @param p_type: string
+        @param n_type: string
         @param weights: list
         @param b: int / float
         """
@@ -34,7 +34,7 @@ class Neuron:
 
     def activation(self, inputs):
         """
-        This function handles the activation of the perceptron.
+        This function handles the activation of the neuron.
         The function uses the sigmoid function to determine the output.
         @param inputs: list
         @return: int
@@ -46,54 +46,59 @@ class Neuron:
         return self.sigmoid(sum)
 
     def sigmoid(self, z):
+        """
+        Applies the sigmoid function.
+        @param z: int / float
+        @return: int / float
+        """
         return 1 / (1 + math.e**(-z))
 
     def __str__(self):
         """
-        Function to make the perceptron object printable for informational purposes.
+        Function to make the neuron object printable for informational purposes.
         @return: string
         """
         return f"Neuron | Type: '{self.n_type}' | Weights: '{self.weights}' | Bias: '{self.b}'"
 
 
 class NeuronLayer:
-    def __init__(self, n_type, ptrons):
+    def __init__(self, n_type, neurons):
         """
-        @param p_type: string
-        @param ptrons: list
+        @param n_type: string
+        @param neurons: list
         """
         self.n_type = n_type
-        self.ptrons = ptrons
+        self.neurons = neurons
 
     def activation(self, inputs):
         """
-        This function handles the activation of the perceptrons that are in the layer.
-        This function uses the step function from the activation() function in the perceptron class.
+        This function handles the activation of the neurons that are in the layer.
+        This function uses the sigmoid function from the activation() function in the Neuron class.
         @param inputs: list
         @return: list
         """
         output = []
-        for perceptron in self.ptrons:
-            output.append(perceptron.activation(inputs))
+        for neuron in self.neurons:
+            output.append(neuron.activation(inputs))
 
         return output
 
     def __str__(self):
         """
-        Function to make the perceptron layer object printable for informational purposes.
+        Function to make the Neuron layer object printable for informational purposes.
         @return: string
         """
-        return f"Perceptron Layer | Amount of Perceptrons: '{len(self.ptrons)}' | Perceptron types: '{self.n_type}'"
+        return f"Neuron Layer | Amount of Neurons: '{len(self.neurons)}' | Neuron types: '{self.n_type}'"
 
 
 class NeuronNetwork:
-    def __init__(self, net_type, pLayers):
+    def __init__(self, net_type, nLayers):
         """
         @param net_type: string
-        @param pLayers: list
+        @param nLayers: list
         """
         self.net_type = net_type
-        self.pLayers = pLayers
+        self.nLayers = nLayers
 
     def feed_forward(self, inputs, expected):
         """
@@ -109,11 +114,10 @@ class NeuronNetwork:
         if len(inputs) == len(expected):
             for i in range(len(inputs)):
                 output_value = inputs[i]
-                for layer in self.pLayers:
+                for layer in self.nLayers:
                     output_value = layer.activation(output_value)
                 total_outputs.append(output_value)
-                correct = output_value == expected[i]
-                print(f"[{self.net_type}] | Input: {inputs[i]} | Output: {output_value} | Correct: {correct}")
+                print(f"[{self.net_type}] | Input: {inputs[i]} | Output: {output_value} | Expected: {expected[i]}")
         else:
             print("Length of inputs and expected are not equal.")
 
@@ -124,11 +128,11 @@ class NeuronNetwork:
         Function that returns the layers the network holds.
         @return: list
         """
-        return self.pLayers
+        return self.nLayers
 
     def __str__(self):
         """
-        Function to make the perceptron network printable for informational purposes.
+        Function to make the Neuron Network printable for informational purposes.
         @return: string
         """
-        return f"Perceptron Network | Type: '{self.net_type}' | Amount of Layers: '{len(self.pLayers)}'"
+        return f"Neuron Network | Type: '{self.net_type}' | Amount of Layers: '{len(self.nLayers)}'"
