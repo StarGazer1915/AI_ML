@@ -2,7 +2,7 @@ import math
 
 
 class Neuron:
-    def __init__(self, n_type, weights, lr, b):
+    def __init__(self, n_type, weights, b):
         """
         @param n_type: string
         @param weights: list
@@ -10,40 +10,13 @@ class Neuron:
         """
         self.n_type = n_type
         self.weights = weights
-        self.lr = lr
         self.b = b
         self.error = 0
         self.gradient = 0
         self.new_weights = []
         self.new_bias = 0
-        self.prev_err_lst = []
-
-    def execute_batch(self, inputs, expected):
-        """
-        The main function to run multiple activations.
-        The function runs an activation for each input given and generates an output. The output is then
-        compared and put into a print statement to give an accurate visual representation of the output
-        and if it's correct/expected. All the outputs are then returned as a list.
-        @param inputs: list
-        @param expected: list
-        @return: list
-        """
-        total_outputs = []
-        if len(inputs) == len(expected):
-            for i in range(len(inputs)):
-                output = self.activation(inputs[i])
-                total_outputs.append(output)
-
-                self.error = output * (1 - output) * -(expected[i] - output)
-                self.gradient = self.error * output
-                self.neuron_bp(self.lr, inputs[i], self.error)
-
-                print(f"[{self.n_type}]| Input: {inputs[i]} | Output: {output} | Expected: {expected[i]} "
-                      f"| Error: {self.error}")
-        else:
-            print("Length of inputs and expected are not equal.")
-
-        return total_outputs
+        self.fwd_err_lst = []
+        self.prev_inputs = []
 
     def activation(self, inputs):
         """
@@ -52,34 +25,23 @@ class Neuron:
         @param inputs: list
         @return: int
         """
+        self.prev_inputs = inputs
         som = self.b
         for i in range(len(inputs)):
             som += inputs[i] * self.weights[i]
 
-        return self.sigmoid(som)
+        output = self.sigmoid(som)
 
-    def sigmoid(self, z):
-        """
-        Applies the sigmoid function.
-        @param z: int / float
-        @return: int / float
-        """
-        return 1 / (1 + math.e**(-z))
+        return output
 
-    def neuron_bp(self, lr, inputs, error):
-        """
-        ???
-        @param lr: int / float
-        @param inputs: list
-        @param error: int / float
-        @return: void
-        """
+    def calc_new_weights_and_bias(self, lr):
+        """"""
         new_w = []
         for i in range(len(self.weights)):
-            new_w.append(self.weights[i] - lr * inputs[i] * error)
+            new_w.append(self.weights[i] - lr * self.prev_inputs[i] * self.error)
 
         self.new_weights = new_w
-        self.new_bias = self.b - (lr * error)
+        self.new_bias = self.b - (lr * self.error)
         return
 
     def update(self):
@@ -91,26 +53,42 @@ class Neuron:
         self.b = self.new_bias
         return
 
-    def calc_hidden_error(self, output, prev_err_lst):
+    def calc_error_output_neuron(self, output, expected):
+        """"""
+        self.error = output * (1 - output) * -(expected - output)
+
+    def calc_error_hidden_neuron(self, output):
         """
         Calculates the hidden error of the previous layer.
-        @param der_output: float
-        @param prev_err_lst: list
+        @param output: float
         @return: float
         """
         der_output = output * (1 - output)
         som = 0
         for i in range(len(self.weights)):
-            som += self.weights[i] * prev_err_lst[i]
+            som += self.weights[i] * self.fwd_err_lst[i]
 
         return der_output * som
+
+
+    def calc_gradient(self, output):
+        """"""
+        self.gradient = self.error * output
+
+    def sigmoid(self, z):
+        """
+        Applies the sigmoid function.
+        @param z: int / float
+        @return: int / float
+        """
+        return 1 / (1 + math.e**(-z))
 
     def __str__(self):
         """
         Function to make the neuron object printable for informational purposes.
         @return: string
         """
-        return f"Neuron | Type: '{self.n_type}' | Weights: '{self.weights}' | Bias: '{self.b}'"
+        return f"Neuron | Type: '{self.n_type}' | Weights: '{self.weights}' | Bias: '{self.b}' | Error: '{self.error}'"
 
 
 class NeuronLayer:
@@ -152,10 +130,10 @@ class NeuronNetwork:
         self.net_type = net_type
         self.nLayers = nLayers
 
-    def train(self, inputs, expected, num_of_epochs):
+    def train(self, lr, inputs, expected, num_of_epochs):
         """"""
         for epoch in range(1, num_of_epochs + 1):
-            self.feed_forward(inputs, expected)
+            self.feed_forward(lr, inputs, expected)
             self.backpropagation()
 
     def backpropagation(self):
@@ -163,7 +141,7 @@ class NeuronNetwork:
         return
 
 
-    def feed_forward(self, inputs, expected):
+    def feed_forward(self, lr, inputs, expected):
         """
         The main function to run multiple activations in multiple layers.
         The function runs an activation for each input given and generates an output. The output is then
@@ -173,17 +151,21 @@ class NeuronNetwork:
         @param expected: list
         @return: list
         """
+        output_value = []
         if len(inputs) == len(expected):
             for i in range(len(inputs)):
                 output_value = inputs[i]
                 for layer in self.nLayers:
                     output_value = layer.activation(output_value)
                 print(f"[{self.net_type}] | Input: {inputs[i]} | Output: {output_value} | Expected: {expected[i]}")
+                print()
+                for n in range(len(self.nLayers[-1].neurons)):
+                    neuron = self.nLayers[-1].neurons[n]
+                    neuron.calc_error_output_neuron(output_value[n], expected[i][n])
+                    neuron.calc_new_weights_and_bias(lr)
         else:
             print("Length of inputs and expected are not equal.")
-
-        return
-
+        return output_value
 
     def get_layers(self):
         """
