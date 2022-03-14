@@ -38,7 +38,7 @@ class Neuron:
         """"""
         new_w = []
         for i in range(len(self.weights)):
-            new_w.append(self.weights[i] - lr * self.prev_inputs[i] * self.error)
+            new_w.append(self.weights[i] - lr * (self.prev_inputs[i] * self.error))
 
         self.new_weights = new_w
         self.new_bias = self.b - (lr * self.error)
@@ -65,11 +65,6 @@ class Neuron:
             som += fwd_w_lst[i][indx] * fwd_err_lst[i]
 
         self.error = der_output * som
-
-
-    def calc_gradient(self, output):
-        """"""
-        self.gradient = self.error * output
 
     def sigmoid(self, z):
         """
@@ -149,11 +144,13 @@ class NeuronNetwork:
                 output_value = inputs[i]
                 for layer in self.nLayers:
                     output_value = layer.activation(output_value)
-                print(f"[{self.net_type}] | Input: {inputs[i]} | Output: {output_value} | Expected: {expected[i]}")
+                print(f"Input: {inputs[i]} | Output: {output_value} | Expected: {expected[i]}")
                 for n in range(len(self.nLayers[-1].neurons)):
                     neuron = self.nLayers[-1].neurons[n]
                     neuron.calc_error_output_neuron(output_value[n], expected[i][n])
                     neuron.calc_new_weights_and_bias(lr)
+            print(" ")
+
         else:
             print("Length of inputs and expected are not equal.")
         return output_value
