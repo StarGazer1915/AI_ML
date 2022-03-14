@@ -11,12 +11,13 @@ class Neuron:
         self.n_type = n_type
         self.weights = weights
         self.b = b
+        self.prev_inputs = []
+        self.prev_output = 0
+        self.prev_n_weights = []
         self.error = 0
         self.gradient = 0
         self.new_weights = []
         self.new_bias = 0
-        self.fwd_err_lst = []
-        self.prev_inputs = []
 
     def activation(self, inputs):
         """
@@ -30,9 +31,8 @@ class Neuron:
         for i in range(len(inputs)):
             som += inputs[i] * self.weights[i]
 
-        output = self.sigmoid(som)
-
-        return output
+        self.prev_output = self.sigmoid(som)
+        return self.prev_output
 
     def calc_new_weights_and_bias(self, lr):
         """"""
@@ -57,18 +57,14 @@ class Neuron:
         """"""
         self.error = output * (1 - output) * -(expected - output)
 
-    def calc_error_hidden_neuron(self, output):
-        """
-        Calculates the hidden error of the previous layer.
-        @param output: float
-        @return: float
-        """
-        der_output = output * (1 - output)
+    def calc_error_hidden_neuron(self, indx, fwd_w_lst, fwd_err_lst):
+        """"""
+        der_output = self.prev_output * (1 - self.prev_output)
         som = 0
-        for i in range(len(self.weights)):
-            som += self.weights[i] * self.fwd_err_lst[i]
+        for i in range(len(fwd_w_lst)):
+            som += fwd_w_lst[i][indx] * fwd_err_lst[i]
 
-        return der_output * som
+        self.error = der_output * som
 
 
     def calc_gradient(self, output):
@@ -136,11 +132,6 @@ class NeuronNetwork:
             self.feed_forward(lr, inputs, expected)
             self.backpropagation()
 
-    def backpropagation(self):
-        # ...
-        return
-
-
     def feed_forward(self, lr, inputs, expected):
         """
         The main function to run multiple activations in multiple layers.
@@ -158,7 +149,6 @@ class NeuronNetwork:
                 for layer in self.nLayers:
                     output_value = layer.activation(output_value)
                 print(f"[{self.net_type}] | Input: {inputs[i]} | Output: {output_value} | Expected: {expected[i]}")
-                print()
                 for n in range(len(self.nLayers[-1].neurons)):
                     neuron = self.nLayers[-1].neurons[n]
                     neuron.calc_error_output_neuron(output_value[n], expected[i][n])
@@ -166,6 +156,23 @@ class NeuronNetwork:
         else:
             print("Length of inputs and expected are not equal.")
         return output_value
+
+    def backpropagation(self):
+        """"""
+        length = len(self.nLayers)-2
+        for i in range(length, -1, -1):
+            prev_err = []
+            prev_weights = []
+            for prev_neuron in self.nLayers[i+1].neurons:
+                prev_err.append(prev_neuron.error)
+                prev_weights.append(prev_neuron.weights)
+            count = 0
+            for neuron in self.nLayers[i].neurons:
+                neuron.calc_error_hidden_neuron(count, prev_weights, prev_err)
+                count += 1
+                print(neuron)
+
+        return
 
     def get_layers(self):
         """
