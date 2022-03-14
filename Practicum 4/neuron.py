@@ -130,7 +130,8 @@ class NeuronNetwork:
         """"""
         for epoch in range(1, num_of_epochs + 1):
             self.feed_forward(lr, inputs, expected)
-            self.backpropagation()
+            self.backpropagation(lr)
+            self.update_all()
 
     def feed_forward(self, lr, inputs, expected):
         """
@@ -157,7 +158,7 @@ class NeuronNetwork:
             print("Length of inputs and expected are not equal.")
         return output_value
 
-    def backpropagation(self):
+    def backpropagation(self, lr):
         """"""
         length = len(self.nLayers)-2
         for i in range(length, -1, -1):
@@ -169,10 +170,15 @@ class NeuronNetwork:
             count = 0
             for neuron in self.nLayers[i].neurons:
                 neuron.calc_error_hidden_neuron(count, prev_weights, prev_err)
+                neuron.calc_new_weights_and_bias(lr)
                 count += 1
-                print(neuron)
-
         return
+
+    def update_all(self):
+        """"""
+        for layer in self.nLayers:
+            for n in layer.neurons:
+                n.update()
 
     def get_layers(self):
         """
