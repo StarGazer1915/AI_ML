@@ -11,17 +11,17 @@ class Neuron:
         self.n_type = n_type
         self.weights = weights
         self.b = b
+        self.error = 0
+        self.prev_n_weights = []
         self.prev_inputs = []
         self.prev_output = 0
-        self.prev_n_weights = []
-        self.error = 0
         self.new_weights = []
         self.new_bias = 0
 
     def activation(self, inputs):
         """
-        This function handles the activation of the neuron.
-        The function uses the sigmoid function to determine the output.
+        This function handles the activation of the neuron. The function uses the sigmoid function to
+        determine the output. It also stores the most recent inputs and outputs for use in backpropagation.
         @param inputs: list
         @return: int
         """
@@ -34,7 +34,13 @@ class Neuron:
         return self.prev_output
 
     def calc_new_weights_and_bias(self, lr):
-        """"""
+        """
+        Calculates the new weights and bias for the neuron. It calculates the deltas and then applies them
+        to the weights. The new weights and bias are then temporarily stored until the real values are
+        updated all at once after backpropagation.
+        @param lr: int / float
+        @return: void
+        """
         new_w = []
         for i in range(len(self.weights)):
             new_weight = self.weights[i] - (lr * (self.prev_inputs[i] * self.error))
@@ -45,12 +51,26 @@ class Neuron:
         return
 
     def calc_error_output_neuron(self, output, expected):
-        """"""
+        """
+        Calculates the error of the current neuron. This function is only used to calculate
+        the errors of the output neurons which can then be used in backpropagation.
+        @param output: int / float
+        @param expected: int / float
+        @return: void
+        """
         der_output = output * (1 - output)
         self.error = der_output * -(expected - output)
+        return
 
     def calc_error_hidden_neuron(self, indx, fwd_w_lst, fwd_err_lst):
-        """"""
+        """
+        Calculates the error of a hidden neuron. It uses the weights and errors of the previous
+        layer to calculate the hidden error so (for example) it's delta's can be calculated.
+        @param indx: int
+        @param fwd_w_lst: list
+        @param fwd_err_lst: list
+        @return: void
+        """
         der_output = self.prev_output * (1 - self.prev_output)
         som = 0
         for i in range(len(fwd_w_lst)):
