@@ -15,7 +15,6 @@ class Neuron:
         self.prev_output = 0
         self.prev_n_weights = []
         self.error = 0
-        self.gradient = 0
         self.new_weights = []
         self.new_bias = 0
 
@@ -38,24 +37,17 @@ class Neuron:
         """"""
         new_w = []
         for i in range(len(self.weights)):
-            new_w.append(self.weights[i] - lr * (self.prev_inputs[i] * self.error))
+            new_weight = self.weights[i] - (lr * (self.prev_inputs[i] * self.error))
+            new_w.append(new_weight)
 
         self.new_weights = new_w
         self.new_bias = self.b - (lr * self.error)
         return
 
-    def update(self):
-        """
-        Updates the weights and bias with the new values.
-        @return: void
-        """
-        self.weights = self.new_weights
-        self.b = self.new_bias
-        return
-
     def calc_error_output_neuron(self, output, expected):
         """"""
-        self.error = output * (1 - output) * -(expected - output)
+        der_output = output * (1 - output)
+        self.error = der_output * -(expected - output)
 
     def calc_error_hidden_neuron(self, indx, fwd_w_lst, fwd_err_lst):
         """"""
@@ -65,6 +57,15 @@ class Neuron:
             som += fwd_w_lst[i][indx] * fwd_err_lst[i]
 
         self.error = der_output * som
+
+    def update(self):
+        """
+        Updates the weights and bias with the new values.
+        @return: void
+        """
+        self.weights = self.new_weights
+        self.b = self.new_bias
+        return
 
     def sigmoid(self, z):
         """
@@ -124,9 +125,8 @@ class NeuronNetwork:
     def train(self, lr, inputs, expected, num_of_epochs):
         """"""
         for epoch in range(1, num_of_epochs + 1):
+            print(f"\n=============== EPOCH {epoch} ===============")
             self.feed_forward(lr, inputs, expected)
-            self.backpropagation(lr)
-            self.update_all()
 
     def feed_forward(self, lr, inputs, expected):
         """
@@ -134,26 +134,32 @@ class NeuronNetwork:
         The function runs an activation for each input given and generates an output. The output is then
         compared and put into a print statement to give an accurate visual representation of the output
         and if it's correct/expected. All the outputs are then returned as a list.
+        @param lr: float
         @param inputs: list
         @param expected: list
         @return: list
         """
-        output_value = []
+        total_output = []
         if len(inputs) == len(expected):
             for i in range(len(inputs)):
                 output_value = inputs[i]
                 for layer in self.nLayers:
                     output_value = layer.activation(output_value)
-                print(f"Input: {inputs[i]} | Output: {output_value} | Expected: {expected[i]}")
-                for n in range(len(self.nLayers[-1].neurons)):
+                total_output.append(output_value)
+                print(f"Input: {inputs[i]} | Output: {output_value} | Expected: {expected[i]}")  # result output layer
+                for n in range(0, len(self.nLayers[-1].neurons)):
                     neuron = self.nLayers[-1].neurons[n]
                     neuron.calc_error_output_neuron(output_value[n], expected[i][n])
                     neuron.calc_new_weights_and_bias(lr)
-            print(" ")
 
+                if len(self.nLayers) > 1:
+                    self.backpropagation(lr)
+                self.update_all()
+
+            print(" ")
         else:
             print("Length of inputs and expected are not equal.")
-        return output_value
+        return total_output
 
     def backpropagation(self, lr):
         """"""
