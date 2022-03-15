@@ -152,8 +152,12 @@ class NeuronNetwork:
         """
         The main function to run multiple activations in multiple layers.
         The function runs an activation for each input given and generates an output. The output is then
-        compared and put into a print statement to give an accurate visual representation of the output
-        and if it's correct/expected. All the outputs are then returned as a list.
+        passed on and put into a print statement to give an accurate visual representation of the output
+        and if it's expected. When an input has passed trough the network and an output value is generated
+        the output neurons then calculate their errors and new weights/bias. Should the network contain
+        more than 1 layer the backpropagation process is run. The update_all() function then
+        updates all neurons in the network with their new (already stored) weights and biases.
+        All the outputs of all inputs are then returned as a list.
         @param lr: float
         @param inputs: list
         @param expected: list
@@ -165,8 +169,10 @@ class NeuronNetwork:
                 output_value = inputs[i]
                 for layer in self.nLayers:
                     output_value = layer.activation(output_value)
+
                 total_output.append(output_value)
-                print(f"Input: {inputs[i]} | Output: {output_value} | Expected: {expected[i]}")  # result output layer
+                print(f"Input: {inputs[i]} | Output: {output_value} | Expected: {expected[i]}")
+
                 for n in range(0, len(self.nLayers[-1].neurons)):
                     neuron = self.nLayers[-1].neurons[n]
                     neuron.calc_error_output_neuron(output_value[n], expected[i][n])
@@ -174,15 +180,22 @@ class NeuronNetwork:
 
                 if len(self.nLayers) > 1:
                     self.backpropagation(lr)
-                self.update_all()
 
-            print(" ")
+                self.update_all()
         else:
             print("Length of inputs and expected are not equal.")
         return total_output
 
     def backpropagation(self, lr):
-        """"""
+        """
+        This function generates the hidden errors and new weights/biases for the hidden neurons
+        in the network. It first gathers the errors and weights from the previous layer (in front of
+        the current layer, like the output layer for example) and stores these values in lists.
+        Then for each neuron in all hidden layers and each neuron in that layer the hidden errors
+        and new weights/biases are calculated and stored.
+        @param lr: int
+        @return: void
+        """
         length = len(self.nLayers)-2
         for i in range(length, -1, -1):
             prev_err = []
@@ -198,7 +211,11 @@ class NeuronNetwork:
         return
 
     def update_all(self):
-        """"""
+        """
+        This function simply goes trough all layers and updates
+        the neurons with their new weights/biases.
+        @return: void
+        """
         for layer in self.nLayers:
             for n in layer.neurons:
                 n.update()
