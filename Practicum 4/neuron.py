@@ -144,9 +144,14 @@ class NeuronNetwork:
 
     def train(self, lr, inputs, expected, num_of_epochs):
         """"""
+        output = []
+        print("\nWORKING...")
         for epoch in range(1, num_of_epochs + 1):
-            print(f"\n=============== EPOCH {epoch} ===============")
-            self.feed_forward(lr, inputs, expected)
+            output = self.feed_forward(lr, inputs, expected)
+
+        print(f"\n| =============== EPOCH {num_of_epochs} =============== | MSE: {output[1]}")
+        for i in range(len(output[0])):
+            print(f"Inputs: {inputs[i]} | Output: {output[0][i]} | Expected: {expected[i]}")
 
     def feed_forward(self, lr, inputs, expected):
         """
@@ -169,9 +174,7 @@ class NeuronNetwork:
                 output_value = inputs[i]
                 for layer in self.nLayers:
                     output_value = layer.activation(output_value)
-
                 total_output.append(output_value)
-                print(f"Input: {inputs[i]} | Output: {output_value} | Expected: {expected[i]}")
 
                 for n in range(0, len(self.nLayers[-1].neurons)):
                     neuron = self.nLayers[-1].neurons[n]
@@ -184,7 +187,7 @@ class NeuronNetwork:
                 self.update_all()
         else:
             print("Length of inputs and expected are not equal.")
-        return total_output
+        return [total_output, self.calc_epoch_MSE(total_output, expected)]
 
     def backpropagation(self, lr):
         """
@@ -219,6 +222,17 @@ class NeuronNetwork:
         for layer in self.nLayers:
             for n in layer.neurons:
                 n.update()
+
+    def calc_epoch_MSE(self, outputs, expected):
+        """"""
+        total_loss = 0
+        for i in range(len(outputs)):
+            som = 0
+            for j in range(len(outputs[i])):
+                som += (expected[i][j] - outputs[i][j])**2
+            total_loss += 0.5 * som
+
+        return total_loss / len(outputs)
 
     def get_layers(self):
         """
