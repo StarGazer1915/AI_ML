@@ -6,8 +6,7 @@ class Neuron:
     def __init__(self, n_type, num_weights):
         """
         @param n_type: string
-        @param weights: list
-        @param b: int / float
+        @param num_weights: int
         """
         self.n_type = n_type
         self.weights = [normalvariate(0, 0.1) for i in range(num_weights)]
@@ -24,7 +23,7 @@ class Neuron:
         This function handles the activation of the neuron. The function uses the sigmoid function to
         determine the output. It also stores the most recent inputs and outputs for use in backpropagation.
         @param inputs: list
-        @return: int
+        @return: float
         """
         self.prev_inputs = inputs
         som = self.b
@@ -44,8 +43,7 @@ class Neuron:
         """
         new_w = []
         for i in range(len(self.weights)):
-            new_weight = self.weights[i] - (lr * (self.prev_inputs[i] * self.error))
-            new_w.append(new_weight)
+            new_w.append(self.weights[i] - (lr * (self.prev_inputs[i] * self.error)))
 
         self.new_weights = new_w
         self.new_bias = self.b - (lr * self.error)
@@ -63,11 +61,12 @@ class Neuron:
         self.error = der_output * -(expected - output)
         return
 
-    def calc_error_hidden_neuron(self, indx, fwd_w_lst, fwd_err_lst):
+    def calc_error_hidden_neuron(self, inx, fwd_w_lst, fwd_err_lst):
         """
         Calculates the error of a hidden neuron. It uses the weights and errors of the previous
-        layer to calculate the hidden error so that it's delta's can be calculated (for example).
-        @param indx: int
+        layer (the layer in front of the current layer) to calculate the hidden error so that,
+        for example, it's delta's can be calculated.
+        @param inx: int
         @param fwd_w_lst: list
         @param fwd_err_lst: list
         @return: void
@@ -75,14 +74,14 @@ class Neuron:
         der_output = self.prev_output * (1 - self.prev_output)
         som = 0
         for i in range(len(fwd_w_lst)):
-            som += fwd_w_lst[i][indx] * fwd_err_lst[i]
+            som += fwd_w_lst[i][inx] * fwd_err_lst[i]
 
         self.error = der_output * som
         return
 
     def update(self):
         """
-        Updates the weights and bias with the new values.
+        Updates the weights and bias of the neuron with it's new values.
         @return: void
         """
         self.weights = self.new_weights
@@ -203,7 +202,7 @@ class NeuronNetwork:
         else:
             print("Length of inputs and expected are not equal.")
 
-        return [total_output, self.calc_epoch_MSE(total_output, expected)]
+        return [total_output, self.calc_epoch_mse(total_output, expected)]
 
     def backpropagation(self, lr):
         """
@@ -215,8 +214,7 @@ class NeuronNetwork:
         @param lr: int
         @return: void
         """
-        length = len(self.nLayers)-2
-        for i in range(length, -1, -1):
+        for i in range(len(self.nLayers)-2, -1, -1):
             prev_err = []
             prev_weights = []
             for prev_neuron in self.nLayers[i+1].neurons:
@@ -240,7 +238,7 @@ class NeuronNetwork:
                 n.update()
         return
 
-    def calc_epoch_MSE(self, outputs, expected):
+    def calc_epoch_mse(self, outputs, expected):
         """
         Calculates the Mean Squared Error for the current epoch.
         @param outputs: list
