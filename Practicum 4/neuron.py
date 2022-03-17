@@ -1,16 +1,17 @@
 import math
+from random import normalvariate
 
 
 class Neuron:
-    def __init__(self, n_type, weights, b):
+    def __init__(self, n_type, num_weights):
         """
         @param n_type: string
         @param weights: list
         @param b: int / float
         """
         self.n_type = n_type
-        self.weights = weights
-        self.b = b
+        self.weights = [normalvariate(0, 0.1) for i in range(num_weights)]
+        self.b = normalvariate(0, 0.1)
         self.error = 0
         self.prev_n_weights = []
         self.prev_inputs = []
@@ -65,7 +66,7 @@ class Neuron:
     def calc_error_hidden_neuron(self, indx, fwd_w_lst, fwd_err_lst):
         """
         Calculates the error of a hidden neuron. It uses the weights and errors of the previous
-        layer to calculate the hidden error so (for example) it's delta's can be calculated.
+        layer to calculate the hidden error so that it's delta's can be calculated (for example).
         @param indx: int
         @param fwd_w_lst: list
         @param fwd_err_lst: list
@@ -77,6 +78,7 @@ class Neuron:
             som += fwd_w_lst[i][indx] * fwd_err_lst[i]
 
         self.error = der_output * som
+        return
 
     def update(self):
         """
@@ -143,7 +145,18 @@ class NeuronNetwork:
         self.nLayers = nLayers
 
     def train(self, lr, inputs, expected, num_of_epochs):
-        """"""
+        """
+        This function runs the feed_forward() function which contains the function calls of the backpropagation()
+        and update_all() functions for the amount of epochs given. It will then store the output and will use
+        the final output in a print statement to show the results of the training. If an lr of 0 is given then
+        this function transforms into a test function as we simply run the neural network with inputs and don't
+        update the weights and bias. In short, this function trains the neural network and shows the final results.
+        @param lr: int / float
+        @param inputs: list
+        @param expected: list
+        @param num_of_epochs: int
+        @return: list
+        """
         output = []
         print("\nWORKING...")
         for epoch in range(1, num_of_epochs + 1):
@@ -151,7 +164,9 @@ class NeuronNetwork:
 
         print(f"\n| =============== EPOCH {num_of_epochs} =============== | MSE: {output[1]}")
         for i in range(len(output[0])):
-            print(f"Inputs: {inputs[i]} | Output: {output[0][i]} | Expected: {expected[i]}")
+            print(f"Inputs: {inputs[i]} | Output: {output[0][i]} | Expected: {expected[i]}\n")
+
+        return output
 
     def feed_forward(self, lr, inputs, expected):
         """
@@ -166,7 +181,7 @@ class NeuronNetwork:
         @param lr: float
         @param inputs: list
         @param expected: list
-        @return: list
+        @return: list ([[outputs], MSE])
         """
         total_output = []
         if len(inputs) == len(expected):
@@ -187,6 +202,7 @@ class NeuronNetwork:
                 self.update_all()
         else:
             print("Length of inputs and expected are not equal.")
+
         return [total_output, self.calc_epoch_MSE(total_output, expected)]
 
     def backpropagation(self, lr):
@@ -222,9 +238,15 @@ class NeuronNetwork:
         for layer in self.nLayers:
             for n in layer.neurons:
                 n.update()
+        return
 
     def calc_epoch_MSE(self, outputs, expected):
-        """"""
+        """
+        Calculates the Mean Squared Error for the current epoch.
+        @param outputs: list
+        @param expected: list
+        @return: float
+        """
         total_loss = 0
         for i in range(len(outputs)):
             som = 0
